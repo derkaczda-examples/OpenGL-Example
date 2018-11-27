@@ -4,3 +4,4 @@ An example of programming with OpenGL based on this [Youtube Series](https://www
 ### Tools/Dependencies
 * Visual Studio 2017
 * [GLFW](http://www.glfw.org/index.html)
+* [GLEW](http://glew.sourceforge.net/)
