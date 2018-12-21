@@ -187,14 +187,26 @@ int main(void)
 	);
 	glUseProgram(shader);
 
+	int location = glGetUniformLocation(shader, "u_Color");
+	ASSERT(location != -1);
+	glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f);
+
 	/* Loop until the user closes the window */
+	float r = 0.0f;
+	float increment = 0.05f;
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
-		
+		glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		
+		if (r > 1.0f)
+			increment = -0.05f;
+		if (r < 0.0f)
+			increment = 0.05f;
+		r += increment;
+
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 
