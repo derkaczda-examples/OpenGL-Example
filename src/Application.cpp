@@ -201,10 +201,8 @@ int main(void)
 		glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		
-		if (r > 1.0f)
-			increment = -0.05f;
-		if (r < 0.0f)
-			increment = 0.05f;
+		if (r > 1.0f || r < 0.0f)
+			increment = increment*-1;
 		r += increment;
 
 		/* Swap front and back buffers */
