@@ -23,6 +23,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 int main(void)
 {
 	GLFWwindow* window;
@@ -77,9 +81,6 @@ int main(void)
 
 	glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0, 0));
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.5, 0.5f, 0));
-
-	glm::mat4 mvp = proj * view * model;
 
 	Shader shader("res/shaders/BasicTextureShader.shader");
 	shader.Bind();
@@ -89,7 +90,6 @@ int main(void)
 	Texture texture("res/textures/texture.png");
 	texture.Bind();
 	shader.SetUniform1i("u_Texture", 0);
-	shader.SetUniformMat4f("u_MVP", mvp);
 
 	va.Unbind();
 	shader.Unbind();
@@ -98,14 +98,34 @@ int main(void)
 
 	Renderer renderer;
 
+	IMGUI_CHECKVERSION();
+	const char* glsl_version = "#version 130";
+	ImGui::CreateContext();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init(glsl_version);
+	ImGui::StyleColorsDark();
+
 	/* Loop until the user closes the window */
 	float r = 0.0f;
 	float increment = 0.05f;
+
+	glm::vec3 translation(0.5, 0.5f, 0);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
 		renderer.Clear();
 		renderer.Draw(va, ib, shader);
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+
+		glm::mat4 mvp = proj * view * model;
+
+		shader.SetUniformMat4f("u_MVP", mvp);
 
 		shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
 
@@ -113,13 +133,28 @@ int main(void)
 			increment = increment*-1;
 		r += increment;
 
+		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		{
+			//ImGui::Begin("");                          // Create a window called "Hello, world!" and append into it.
+
+			ImGui::SliderFloat3("float", &translation.x, -2.0f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			//ImGui::End();
+		}
+
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
-	 
+	//ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 	shader.Unbind();
 	glfwTerminate();
 	return 0;
