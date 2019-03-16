@@ -27,6 +27,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+#include "tests/Test.h"
 #include "tests/TestClearColor.h"
 
 int main(void)
@@ -114,22 +115,40 @@ int main(void)
 	glm::vec3 translation(0.5, 0.5f, 0);
 	glm::vec3 translation2(1.0, 0.5f, 0);
 
-	Test::TestClearColor clearColorTest;
+	Test::Test* currentTest = nullptr;
+	Test::TestMenu* testMenu = new Test::TestMenu(currentTest);
+	currentTest = testMenu;
+
+	testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
+
+	//Test::TestClearColor clearColorTest;
 
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
 		renderer.Clear();
 
-		clearColorTest.OnUpdate(0.0f);
-		clearColorTest.OnRender();
+		//clearColorTest.OnUpdate(0.0f);
+		//clearColorTest.OnRender();
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		if (currentTest)
+		{
+			currentTest->OnUpdate(0.0f);
+			currentTest->OnRender();
+			ImGui::Begin("Test");
+			if (currentTest != testMenu && ImGui::Button("<-"))
+			{
+				delete currentTest;
+				currentTest = testMenu;
+			}
+			currentTest->OnImGuiRender();
+			ImGui::End();
+		}
 
-
-		clearColorTest.OnImGuiRender();
+		//clearColorTest.OnImGuiRender();
 
 
 		ImGui::Render();
