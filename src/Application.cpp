@@ -27,6 +27,8 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+#include "tests/TestClearColor.h"
+
 int main(void)
 {
 	GLFWwindow* window;
@@ -112,49 +114,22 @@ int main(void)
 	glm::vec3 translation(0.5, 0.5f, 0);
 	glm::vec3 translation2(1.0, 0.5f, 0);
 
+	Test::TestClearColor clearColorTest;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
 		renderer.Clear();
-		renderer.Draw(va, ib, shader);
+
+		clearColorTest.OnUpdate(0.0f);
+		clearColorTest.OnRender();
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		{
-			glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
-			glm::mat4 mvp = proj * view * model;
 
-			shader.Bind();
-			shader.SetUniformMat4f("u_MVP", mvp);
-
-			renderer.Draw(va, ib, shader);
-		}
-		{
-			glm::mat4 model = glm::translate(glm::mat4(1.0f), translation2);
-			glm::mat4 mvp = proj * view * model;
-
-			shader.Bind();
-			shader.SetUniformMat4f("u_MVP", mvp);
-
-			renderer.Draw(va, ib, shader);
-		}
-
-
-		if (r > 1.0f || r < 0.0f)
-			increment = increment*-1;
-		r += increment;
-
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		{
-			//ImGui::Begin("");                          // Create a window called "Hello, world!" and append into it.
-
-			ImGui::SliderFloat3("Translate 1", &translation.x, -2.0f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::SliderFloat3("Translate 2", &translation2.x, -2.0f, 2.0f);
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			//ImGui::End();
-		}
+		clearColorTest.OnImGuiRender();
 
 
 		ImGui::Render();
