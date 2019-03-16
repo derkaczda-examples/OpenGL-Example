@@ -80,7 +80,7 @@ int main(void)
 	IndexBuffer ib(indices, 6);
 
 	glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
-	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0, 0));
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 
 	Shader shader("res/shaders/BasicTextureShader.shader");
 	shader.Bind();
@@ -110,6 +110,7 @@ int main(void)
 	float increment = 0.05f;
 
 	glm::vec3 translation(0.5, 0.5f, 0);
+	glm::vec3 translation2(1.0, 0.5f, 0);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -121,13 +122,25 @@ int main(void)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+		{
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+			glm::mat4 mvp = proj * view * model;
 
-		glm::mat4 mvp = proj * view * model;
+			shader.Bind();
+			shader.SetUniformMat4f("u_MVP", mvp);
 
-		shader.SetUniformMat4f("u_MVP", mvp);
+			renderer.Draw(va, ib, shader);
+		}
+		{
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), translation2);
+			glm::mat4 mvp = proj * view * model;
 
-		shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
+			shader.Bind();
+			shader.SetUniformMat4f("u_MVP", mvp);
+
+			renderer.Draw(va, ib, shader);
+		}
+
 
 		if (r > 1.0f || r < 0.0f)
 			increment = increment*-1;
@@ -137,8 +150,8 @@ int main(void)
 		{
 			//ImGui::Begin("");                          // Create a window called "Hello, world!" and append into it.
 
-			ImGui::SliderFloat3("float", &translation.x, -2.0f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
+			ImGui::SliderFloat3("Translate 1", &translation.x, -2.0f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::SliderFloat3("Translate 2", &translation2.x, -2.0f, 2.0f);
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			//ImGui::End();
 		}

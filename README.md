@@ -14,6 +14,7 @@ An example of programming with OpenGL based on this [Youtube Series](https://www
 #### Additional Include Directories
 * $(SolutionDir)\dependencies\GLFW\include
 * $(SolutionDir)\dependencies\GLEW\include
+* $(SolutionDir)\src\vendor\
 
 #### Additional Library Directories
 * $(SolutionDir)\dependencies\GLFW\lib-vc2015
